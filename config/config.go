@@ -1,15 +1,18 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
+// Config stores a DBConfig
 type Config struct {
 	DB *DBConfig
 }
 
+// DBConfig stores database config options
 type DBConfig struct {
 	Username string
 	Password string
@@ -17,6 +20,7 @@ type DBConfig struct {
 	Host     string
 }
 
+// GetConfig gets the database config from environment variables
 func GetConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
