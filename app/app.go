@@ -25,7 +25,7 @@ func (a *App) Initialize(config *config.Config) {
 		config.DB.Password,
 		config.DB.Host,
 		config.DB.Dbname)
-	
+
 	db, err := sql.Open("postgres", dbURI)
 	if err != nil {
 		log.Fatal("Could not connect database")
@@ -33,7 +33,7 @@ func (a *App) Initialize(config *config.Config) {
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal("Failed to ping DB: %s", err)
+		log.Fatalf("Failed to ping DB: %s", err)
 	}
 
 	// run migrations
@@ -111,7 +111,6 @@ func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
 	log.Println("RestorePoll")
 	// handler.RestorePoll(a.DB, w, r)
 }
-
 
 // Run the app on it's router
 func (a *App) Run(host string) {
