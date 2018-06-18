@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/drklee3/polls-api/app/model"
+	"github.com/drklee3/polls-api/config"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	// "github.com/drklee3/polls-api/app/handler"
-	"github.com/drklee3/polls-api/config"
 )
 
 // App has router and db instances
@@ -37,7 +37,7 @@ func (a *App) Initialize(config *config.Config) {
 	}
 
 	// run migrations
-	a.DB = db
+	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()
 	a.setRouters()
 }

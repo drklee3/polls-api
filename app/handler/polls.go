@@ -1,28 +1,18 @@
 package handler
 
 import (
-	"database/sql"
 	// "encoding/json"
 	"net/http"
 
-	_ "github.com/lib/pq"
-	// "github.com/gorilla/mux"
+	"github.com/drklee3/polls-api/app/model"
+	"github.com/jinzhu/gorm"
 )
 
-func GetAllPolls(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-	/*
-		rows, err := db.Query("SELECT 1 + 1 AS result")
-
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		w.Write([]byte(rows))
-	*/
+// GetAllPolls gets the list of all polls
+func GetAllPolls(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	polls := []model.Poll{}
+	db.Find(&polls)
+	respondJSON(w, http.StatusOK, polls)
 }
 
 func CreatePoll(w http.ResponseWriter, r *http.Request) {
