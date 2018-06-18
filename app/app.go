@@ -33,7 +33,7 @@ func (a *App) Initialize(config *config.Config) {
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		log.Fatal("Failed to ping DB: %s", err)
 	}
 
 	// run migrations
