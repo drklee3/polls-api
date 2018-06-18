@@ -1,7 +1,7 @@
 package handler
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"net/http"
 
 	"github.com/drklee3/polls-api/app/model"
@@ -15,8 +15,22 @@ func GetAllPolls(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, polls)
 }
 
-func CreatePoll(w http.ResponseWriter, r *http.Request) {
+// CreatePoll creates a new poll
+func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	poll := model.Poll{}
 
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&poll); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
+
+	if err := db.Save(&poll).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusCreated, poll)
 }
 
 func GetPoll(w http.ResponseWriter, r *http.Request) {
