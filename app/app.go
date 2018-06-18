@@ -1,13 +1,12 @@
 package app
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	"github.com/jinzhu/gorm"
 	// "github.com/drklee3/polls-api/app/handler"
 	"github.com/drklee3/polls-api/config"
 )
@@ -15,7 +14,7 @@ import (
 // App has router and db instances
 type App struct {
 	Router *mux.Router
-	DB     *sql.DB
+	DB     *gorm.DB
 }
 
 // Initialize initializes the app with predefined configuration
@@ -26,12 +25,13 @@ func (a *App) Initialize(config *config.Config) {
 		config.DB.Host,
 		config.DB.Dbname)
 
-	db, err := sql.Open("postgres", dbURI)
+	db, err := gorm.Open("postgres", dbURI)
 	if err != nil {
 		log.Fatal("Could not connect database")
 	}
 
-	err = db.Ping()
+	// test connection
+	_, err = db.Raw("SELECT 1 + 1 AS result").Rows()
 	if err != nil {
 		log.Fatalf("Failed to ping DB: %s", err)
 	}
