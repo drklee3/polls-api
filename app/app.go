@@ -3,8 +3,10 @@ package app
 import (
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
+	"github.com/drklee3/polls-api/app/handler"
 	"github.com/drklee3/polls-api/app/model"
 	"github.com/drklee3/polls-api/config"
 	"github.com/gorilla/mux"
@@ -39,6 +41,7 @@ func (a *App) Initialize(config *config.Config) {
 	// run migrations
 	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()
+	a.Router.Use(loggingMiddleware)
 	a.setRouters()
 }
 
@@ -47,8 +50,10 @@ func (a *App) setRouters() {
 	// Routing for handling the polls
 	a.Get("/polls", a.GetAllPolls)
 	a.Post("/polls", a.CreatePoll)
+
 	a.Get("/polls/{id:[0-9]+}", a.GetPoll)
 	a.Put("/polls/{id:[0-9]+}", a.UpdatePoll)
+
 	a.Delete("/polls/{id:[0-9]+}", a.DeletePoll)
 	a.Put("/polls/{id:[0-9]+}/archive", a.ArchivePoll)
 	a.Delete("/polls/{id:[0-9]+}/archive", a.RestorePoll)
@@ -77,38 +82,39 @@ func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)
 /*
 ** Polls Handlers
  */
+
+// GetAllPolls gets all the polls
 func (a *App) GetAllPolls(w http.ResponseWriter, r *http.Request) {
-	log.Println("GetAllPolls")
-	// handler.GetAllPolls(a.DB, w, r)
+	handler.GetAllPolls(a.DB, w, r)
 }
 
+// CreatePoll creates a new poll
 func (a *App) CreatePoll(w http.ResponseWriter, r *http.Request) {
-	log.Println("CreatePoll")
 	// handler.CreatePoll(a.DB, w, r)
 }
 
+// GetPoll gets a single poll
 func (a *App) GetPoll(w http.ResponseWriter, r *http.Request) {
-	log.Println("GetPoll")
 	// handler.GetPoll(a.DB, w, r)
 }
 
+// UpdatePoll updates a single poll
 func (a *App) UpdatePoll(w http.ResponseWriter, r *http.Request) {
-	log.Println("UpdatePoll")
 	// handler.UpdatePoll(a.DB, w, r)
 }
 
+// DeletePoll deletes a single poll
 func (a *App) DeletePoll(w http.ResponseWriter, r *http.Request) {
-	log.Println("DeletePoll")
 	// handler.DeletePoll(a.DB, w, r)
 }
 
+// ArchivePoll disables a single poll submissions
 func (a *App) ArchivePoll(w http.ResponseWriter, r *http.Request) {
-	log.Println("ArchivePoll")
 	// handler.ArchivePoll(a.DB, w, r)
 }
 
+// RestorePoll re-enables a single poll submissions
 func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
-	log.Println("RestorePoll")
 	// handler.RestorePoll(a.DB, w, r)
 }
 
@@ -116,4 +122,16 @@ func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
 func (a *App) Run(host string) {
 	log.Printf("Listening on %s", host)
 	log.Fatal(http.ListenAndServe(host, a.Router))
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			ip = "N/A"
+		}
+		log.Printf("[%s %s] %s", r.Method, r.RequestURI, ip)
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
 }
