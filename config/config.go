@@ -1,5 +1,11 @@
 package config
 
+import (
+	"github.com/joho/godotenv"
+	"log"
+	"os"
+)
+
 type Config struct {
 	DB *DBConfig
 }
@@ -12,12 +18,17 @@ type DBConfig struct {
 }
 
 func GetConfig() *Config {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	return &Config{
 		DB: &DBConfig{
-			Username: "guest",
-			Password: "Guest0000!",
-			Dbname:     "todoapp",
-			Host:     "localhost",
+			Username: os.Getenv("DB_USERNAME"),
+			Password: os.Getenv("DB_PASSWORD"),
+			Dbname:   os.Getenv("DB_NAME"),
+			Host:     os.Getenv("DB_HOST"),
 		},
 	}
 }

@@ -20,11 +20,11 @@ type App struct {
 
 // Initialize initializes the app with predefined configuration
 func (a *App) Initialize(config *config.Config) {
-	dbURI := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=verify-full",
+	dbURI := fmt.Sprintf("postgres://%s:%s@%s/%s",
 		config.DB.Username,
 		config.DB.Password,
-		config.DB.Dbname,
-		config.DB.Host)
+		config.DB.Host,
+		config.DB.Dbname)
 	
 	db, err := sql.Open("postgres", dbURI)
 	if err != nil {
@@ -78,42 +78,43 @@ func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)
 ** Polls Handlers
  */
 func (a *App) GetAllPolls(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GetAllPolls")
+	log.Println("GetAllPolls")
 	// handler.GetAllPolls(a.DB, w, r)
 }
 
 func (a *App) CreatePoll(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("CreatePoll")
+	log.Println("CreatePoll")
 	// handler.CreatePoll(a.DB, w, r)
 }
 
 func (a *App) GetPoll(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GetPoll")
+	log.Println("GetPoll")
 	// handler.GetPoll(a.DB, w, r)
 }
 
 func (a *App) UpdatePoll(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("UpdatePoll")
+	log.Println("UpdatePoll")
 	// handler.UpdatePoll(a.DB, w, r)
 }
 
 func (a *App) DeletePoll(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("DeletePoll")
+	log.Println("DeletePoll")
 	// handler.DeletePoll(a.DB, w, r)
 }
 
 func (a *App) ArchivePoll(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ArchivePoll")
+	log.Println("ArchivePoll")
 	// handler.ArchivePoll(a.DB, w, r)
 }
 
 func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("RestorePoll")
+	log.Println("RestorePoll")
 	// handler.RestorePoll(a.DB, w, r)
 }
 
 
 // Run the app on it's router
 func (a *App) Run(host string) {
+	log.Printf("Listening on %s", host)
 	log.Fatal(http.ListenAndServe(host, a.Router))
 }
