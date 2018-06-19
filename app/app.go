@@ -3,12 +3,13 @@ package app
 import (
 	"fmt"
 	"log"
-	"net"
 	"net/http"
+	"os"
 
 	"github.com/drklee3/polls-api/app/handler"
 	"github.com/drklee3/polls-api/app/model"
 	"github.com/drklee3/polls-api/config"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
@@ -41,7 +42,6 @@ func (a *App) Initialize(config *config.Config) {
 	// run migrations
 	a.DB = model.DBMigrate(db)
 	a.Router = mux.NewRouter()
-	a.Router.Use(loggingMiddleware)
 	a.setRouters()
 }
 
@@ -121,17 +121,5 @@ func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
 // Run the app on it's router
 func (a *App) Run(host string) {
 	log.Printf("Listening on %s", host)
-	log.Fatal(http.ListenAndServe(host, a.Router))
-}
-
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			ip = "N/A"
-		}
-		log.Printf("[%s %s] %s", r.Method, r.RequestURI, ip)
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-	})
+	log.Fatal(http.ListenAndServe(host, handlers.LoggingHandler(os.Stdout, a.Router)))
 }
