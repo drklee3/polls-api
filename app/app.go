@@ -29,7 +29,7 @@ func (a *App) Initialize(config *config.Config) {
 
 	db, err := gorm.Open("postgres", dbURI)
 	if err != nil {
-		log.Fatal("Could not connect database")
+		log.Fatal("Could not connect database", err.Error())
 	}
 
 	// test connection
@@ -90,32 +90,32 @@ func (a *App) GetAllPolls(w http.ResponseWriter, r *http.Request) {
 
 // CreatePoll creates a new poll
 func (a *App) CreatePoll(w http.ResponseWriter, r *http.Request) {
-	// handler.CreatePoll(a.DB, w, r)
+	handler.CreatePoll(a.DB, w, r)
 }
 
 // GetPoll gets a single poll
 func (a *App) GetPoll(w http.ResponseWriter, r *http.Request) {
-	// handler.GetPoll(a.DB, w, r)
+	handler.GetPoll(a.DB, w, r)
 }
 
 // UpdatePoll updates a single poll
 func (a *App) UpdatePoll(w http.ResponseWriter, r *http.Request) {
-	// handler.UpdatePoll(a.DB, w, r)
+	handler.UpdatePoll(a.DB, w, r)
 }
 
 // DeletePoll deletes a single poll
 func (a *App) DeletePoll(w http.ResponseWriter, r *http.Request) {
-	// handler.DeletePoll(a.DB, w, r)
+	handler.DeletePoll(a.DB, w, r)
 }
 
 // ArchivePoll disables a single poll submissions
 func (a *App) ArchivePoll(w http.ResponseWriter, r *http.Request) {
-	// handler.ArchivePoll(a.DB, w, r)
+	handler.ArchivePoll(a.DB, w, r)
 }
 
 // RestorePoll re-enables a single poll submissions
 func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
-	// handler.RestorePoll(a.DB, w, r)
+	handler.RestorePoll(a.DB, w, r)
 }
 
 // Run the app on it's router
