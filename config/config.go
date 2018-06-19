@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config stores a DBConfig
+// Config stores HTTP server and DB configs
 type Config struct {
 	DB        *DBConfig
 	Interface string
