@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -11,6 +12,7 @@ import (
 
 // PollChoice contains options for a single poll choice
 type PollChoice struct {
+	ID    uint   `json:"id"`
 	Name  string `json:"name"`
 	Color string `json:"color"`
 	Count uint   `json:"count"`
@@ -51,6 +53,13 @@ func (p *PollContent) Scan(src interface{}) error {
 	return nil
 }
 
+// Sort sorts a poll's choices by ID
+func (p *PollContent) Sort() {
+	sort.Slice(p.Choices, func(i, j int) bool {
+		return p.Choices[i].ID < p.Choices[j].ID
+	})
+}
+
 // Poll contains a single poll data
 type Poll struct {
 	ID        uint64    `gorm:"primary_key"`
@@ -69,6 +78,29 @@ func (p *Poll) Archive() {
 // Restore restores a poll and re-enables submissions
 func (p *Poll) Restore() {
 	p.Archived = false
+}
+
+// Update updates a poll's options without modifying choice counts
+func (p *Poll) Update(u *Poll) {
+	// kind of inefficient? O(n^2) maybe use a map instead?
+OUTER:
+	for i, updated := range u.Content.Choices {
+		// search previous choices for match
+		for _, previous := range p.Content.Choices {
+			// found match
+			if previous.ID == updated.ID {
+				// set updated data counts to previous count
+				u.Content.Choices[i].Count = previous.Count
+				continue OUTER
+			}
+		}
+		// (new choice) not found in previous poll
+		u.Content.Choices[i].Count = 0
+	}
+
+	// set current poll data to new updated data
+	// doesn't seem to work if using `p = u`? have to copy data over
+	*p = *u
 }
 
 // Submissions contain a single submission of
