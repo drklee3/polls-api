@@ -1,10 +1,12 @@
 package model
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // PollChoice contains options for a single poll choice
@@ -30,12 +32,12 @@ type PollContent struct {
 
 // Poll contains a single poll data
 type Poll struct {
-	ID        uint      `gorm:"primary_key"`
+	ID        uint64    `gorm:"primary_key"`
 	CreatedAt time.Time `gorm:"not null" sql:"DEFAULT:current_timestamp"`
 	UpdatedAt *time.Time
-	Title     string         `gorm:"not null"`
-	Archived  bool           `gorm:"not null"`
-	Content   postgres.Jsonb `gorm:"not null"`
+	Title     string      `gorm:"not null"`
+	Archived  bool        `gorm:"not null"`
+	Content   PollContent `gorm:"type:jsonb not null default '{}'::jsonb"`
 }
 
 // Archive archives a poll and disables submissions
@@ -48,12 +50,34 @@ func (p *Poll) Restore() {
 	p.Archived = false
 }
 
+// Value marshals data for jsonb column
+func (p *PollContent) Value() (driver.Value, error) {
+	j, err := json.Marshal(p)
+	return j, err
+}
+
+// Scan unmarshals data for jsonb column
+func (p *PollContent) Scan(src interface{}) error {
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("type assertion .([]byte) failed")
+	}
+
+	var i PollContent
+	if err := json.Unmarshal(source, &i); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Submissions contain a single submission of
 // a poll to keep track of duplicates
 type Submissions struct {
-	gorm.Model
-	IP     string `gorm:"not null"`
-	PollID uint   `gorm:"not null"`
+	ID        uint64    `gorm:"primary_key"`
+	CreatedAt time.Time `gorm:"not null"`
+	IP        string    `gorm:"not null"`
+	PollID    uint64    `gorm:"not null"`
 }
 
 // DBMigrate will create and migrate the tables, and then make the some relationships if necessary
