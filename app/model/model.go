@@ -30,26 +30,6 @@ type PollContent struct {
 	Options PollOptions  `json:"opions"`
 }
 
-// Poll contains a single poll data
-type Poll struct {
-	ID        uint64    `gorm:"primary_key"`
-	CreatedAt time.Time `gorm:"not null" sql:"DEFAULT:current_timestamp"`
-	UpdatedAt *time.Time
-	Title     string      `gorm:"not null"`
-	Archived  bool        `gorm:"not null"`
-	Content   PollContent `gorm:"type:jsonb not null default '{}'::jsonb"`
-}
-
-// Archive archives a poll and disables submissions
-func (p *Poll) Archive() {
-	p.Archived = true
-}
-
-// Restore restores a poll and re-enables submissions
-func (p *Poll) Restore() {
-	p.Archived = false
-}
-
 // Value marshals data for jsonb column
 func (p *PollContent) Value() (driver.Value, error) {
 	j, err := json.Marshal(p)
@@ -69,6 +49,26 @@ func (p *PollContent) Scan(src interface{}) error {
 	}
 
 	return nil
+}
+
+// Poll contains a single poll data
+type Poll struct {
+	ID        uint64    `gorm:"primary_key"`
+	CreatedAt time.Time `gorm:"not null" sql:"DEFAULT:current_timestamp"`
+	UpdatedAt *time.Time
+	Title     string      `gorm:"not null"`
+	Archived  bool        `gorm:"not null"`
+	Content   PollContent `gorm:"type:jsonb not null default '{}'::jsonb"`
+}
+
+// Archive archives a poll and disables submissions
+func (p *Poll) Archive() {
+	p.Archived = true
+}
+
+// Restore restores a poll and re-enables submissions
+func (p *Poll) Restore() {
+	p.Archived = false
 }
 
 // Submissions contain a single submission of
