@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -38,18 +39,12 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 // GetPoll gets a single poll
 func GetPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-
-	// parse id from string
-	id, err := strconv.ParseUint(vars["id"], 10, 64)
-	if err != nil {
-		respondError(w, http.StatusNotFound, err.Error())
-		return
-	}
+	id := vars["id"]
 
 	// get the poll item
-	var poll model.Poll
-	if err := db.First(&poll, model.Poll{ID: id}).Error; err != nil {
-		respondError(w, http.StatusNotFound, err.Error())
+	poll, err := getPoll(db, id, w, r)
+	if err != nil {
+		log.Printf("error: %s", err)
 		return
 	}
 
@@ -70,4 +65,21 @@ func ArchivePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 func RestorePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
+}
+
+func getPoll(db *gorm.DB, idStr string, w http.ResponseWriter, r *http.Request) (*model.Poll, error) {
+	// parse id from string
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		respondError(w, http.StatusNotFound, err.Error())
+		return nil, err
+	}
+
+	var poll model.Poll
+	if err := db.First(&poll, model.Poll{ID: id}).Error; err != nil {
+		respondError(w, http.StatusNotFound, err.Error())
+		return nil, err
+	}
+
+	return &poll, nil
 }
