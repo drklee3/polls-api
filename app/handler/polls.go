@@ -56,13 +56,17 @@ func UpdatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var updatedPoll model.Poll
 	// decode body
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&poll); err != nil {
+	if err := decoder.Decode(&updatedPoll); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
+
+	// update poll with new data without modifying counts
+	poll.Update(&updatedPoll)
 
 	// save new poll
 	if err := db.Save(&poll).Error; err != nil {
@@ -133,6 +137,7 @@ func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) (*model.Poll, 
 		return nil, err
 	}
 
+	// get poll from db
 	var poll model.Poll
 	if err := db.First(&poll, model.Poll{ID: id}).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
