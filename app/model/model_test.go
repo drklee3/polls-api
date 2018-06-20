@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -151,10 +150,33 @@ func TestAddSubmission(t *testing.T) {
 
 	poll.AddSubmission(&submission)
 
-	fmt.Printf("%v", poll.Content.Choices["4"])
-	fmt.Printf("%v", pollAfter.Content.Choices["4"])
-
 	if !reflect.DeepEqual(poll, pollAfter) {
 		t.Error("Poll does not have updated choice counts")
+	}
+}
+
+func TestAddSubmissionEmpty(t *testing.T) {
+	poll := Poll{}
+	submission := SubmissionOptions{}
+
+	err := poll.AddSubmission(&submission)
+
+	if err == nil && err.Error() == "Submission cannot be empty" {
+		t.Error("Poll allowed empty submission")
+	}
+}
+
+func TestAddSubmissionArchived(t *testing.T) {
+	poll := Poll{
+		Archived: true,
+	}
+	submission := SubmissionOptions{
+		ChoiceIDs: []uint{1},
+	}
+
+	err := poll.AddSubmission(&submission)
+
+	if err == nil && err.Error() == "Poll is archived" {
+		t.Error("Archived poll allowed submission")
 	}
 }

@@ -114,13 +114,30 @@ func (p *Poll) Update(u *Poll) {
 }
 
 // AddSubmission adds a single submission to a poll
-func (p *Poll) AddSubmission(s *SubmissionOptions) {
+func (p *Poll) AddSubmission(s *SubmissionOptions) error {
+	// check for empty submission
+	if len(s.ChoiceIDs) == 0 {
+		return errors.New("Submission cannot be empty")
+	}
+
+	// check if archived
+	if p.Archived {
+		return errors.New("Poll is archived")
+	}
+
+	// check if radio type poll, remove all but first in submissions
+	if p.Content.Options.PollType == "radio" {
+		s.ChoiceIDs = s.ChoiceIDs[:1]
+	}
+
 	for _, id := range s.ChoiceIDs {
 		strID := strconv.FormatUint(uint64(id), 10)
 		if val, ok := p.Content.Choices[strID]; ok {
 			val.Count++
 		}
 	}
+
+	return nil
 }
 
 // Submission contain a single submission of
