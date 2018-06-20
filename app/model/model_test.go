@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -94,5 +95,66 @@ func TestUpdate(t *testing.T) {
 
 	if !reflect.DeepEqual(toUpdatePoll, shouldEqual) {
 		t.Error("Updated poll has invalid modified choices")
+	}
+}
+
+func TestAddSubmission(t *testing.T) {
+	poll := Poll{
+		Content: PollContent{
+			Choices: map[string]*PollChoice{
+				"4": &PollChoice{
+					ID:    4,
+					Count: 100,
+				},
+				"25": &PollChoice{
+					ID:    25,
+					Count: 324,
+				},
+				"1": &PollChoice{
+					ID:    1,
+					Count: 123,
+				},
+				"5": &PollChoice{
+					ID:    5,
+					Count: 9,
+				},
+			},
+		},
+	}
+
+	pollAfter := Poll{
+		Content: PollContent{
+			Choices: map[string]*PollChoice{
+				"4": &PollChoice{
+					ID:    4,
+					Count: 101,
+				},
+				"25": &PollChoice{
+					ID:    25,
+					Count: 324,
+				},
+				"1": &PollChoice{
+					ID:    1,
+					Count: 123,
+				},
+				"5": &PollChoice{
+					ID:    5,
+					Count: 9,
+				},
+			},
+		},
+	}
+
+	submission := SubmissionOptions{
+		ChoiceIDs: []uint{4},
+	}
+
+	poll.AddSubmission(&submission)
+
+	fmt.Printf("%v", poll.Content.Choices["4"])
+	fmt.Printf("%v", pollAfter.Content.Choices["4"])
+
+	if !reflect.DeepEqual(poll, pollAfter) {
+		t.Error("Poll does not have updated choice counts")
 	}
 }
