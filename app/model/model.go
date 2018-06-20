@@ -116,7 +116,8 @@ func (p *Poll) Update(u *Poll) {
 // AddSubmission adds a single submission to a poll
 func (p *Poll) AddSubmission(s *SubmissionOptions) {
 	for _, id := range s.ChoiceIDs {
-		if val, ok := p.Content.Choices[string(id)]; ok {
+		strID := strconv.FormatUint(uint64(id), 10)
+		if val, ok := p.Content.Choices[strID]; ok {
 			val.Count++
 		}
 	}
