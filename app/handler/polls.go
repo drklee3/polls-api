@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/drklee3/polls-api/app/model"
 	"github.com/gorilla/mux"
@@ -62,13 +64,25 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var submission model.SubmissionOptions
+	submission := model.Submission{
+		CreatedAt: time.Now(),
+		IP:        strings.Split(r.RemoteAddr, ":")[0],
+		PollID:    poll.ID,
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&submission); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	defer r.Body.Close()
+
+	// add submission
+	if err := poll.AddSubmission(&submission); err != nil {
+		// check for errors when adding submission
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	respondJSON(w, http.StatusOK, poll)
 }

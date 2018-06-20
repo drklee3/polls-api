@@ -92,6 +92,9 @@ func TestUpdate(t *testing.T) {
 
 	toUpdatePoll.Update(&modifiedPoll)
 
+	// make updated timestamp the same
+	shouldEqual.UpdatedAt = toUpdatePoll.UpdatedAt
+
 	if !reflect.DeepEqual(toUpdatePoll, shouldEqual) {
 		t.Error("updated poll has invalid modified choices")
 	}
@@ -144,7 +147,7 @@ func TestAddSubmission(t *testing.T) {
 		},
 	}
 
-	submission := SubmissionOptions{
+	submission := Submission{
 		ChoiceIDs: []uint{4},
 	}
 
@@ -157,7 +160,7 @@ func TestAddSubmission(t *testing.T) {
 
 func TestAddSubmissionEmpty(t *testing.T) {
 	poll := Poll{}
-	submission := SubmissionOptions{}
+	submission := Submission{}
 
 	err := poll.AddSubmission(&submission)
 
@@ -170,7 +173,7 @@ func TestAddSubmissionArchived(t *testing.T) {
 	poll := Poll{
 		Archived: true,
 	}
-	submission := SubmissionOptions{
+	submission := Submission{
 		ChoiceIDs: []uint{1},
 	}
 

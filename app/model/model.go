@@ -111,10 +111,14 @@ func (p *Poll) Update(u *Poll) {
 	// set current poll data to new updated data
 	// doesn't seem to work if using `p = u`? have to copy data over
 	*p = *u
+
+	// update updated time
+	now := time.Now()
+	p.UpdatedAt = &now
 }
 
 // AddSubmission adds a single submission to a poll
-func (p *Poll) AddSubmission(s *SubmissionOptions) error {
+func (p *Poll) AddSubmission(s *Submission) error {
 	// check for empty submission
 	if len(s.ChoiceIDs) == 0 {
 		return errors.New("submission cannot be empty")
@@ -130,11 +134,19 @@ func (p *Poll) AddSubmission(s *SubmissionOptions) error {
 		s.ChoiceIDs = s.ChoiceIDs[:1]
 	}
 
+	modified := 0
+
 	for _, id := range s.ChoiceIDs {
 		strID := strconv.FormatUint(uint64(id), 10)
 		if val, ok := p.Content.Choices[strID]; ok {
 			val.Count++
+			modified++ // update modified choices
 		}
+	}
+
+	// check if no choices were modified
+	if modified == 0 {
+		return errors.New("invalid submission choice")
 	}
 
 	return nil
@@ -147,11 +159,7 @@ type Submission struct {
 	CreatedAt time.Time `gorm:"not null"`
 	IP        string    `gorm:"not null"`
 	PollID    uint64    `gorm:"not null"`
-}
-
-// SubmissionOptions contains selected choice data from a submission
-type SubmissionOptions struct {
-	ChoiceIDs []uint `json:"choice_ids"`
+	ChoiceIDs []uint    `sql:"-" gorm:"-" json:"choice_ids"`
 }
 
 // DBMigrate will create and migrate the tables, and then make the some relationships if necessary
