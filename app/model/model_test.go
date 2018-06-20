@@ -93,7 +93,7 @@ func TestUpdate(t *testing.T) {
 	toUpdatePoll.Update(&modifiedPoll)
 
 	if !reflect.DeepEqual(toUpdatePoll, shouldEqual) {
-		t.Error("Updated poll has invalid modified choices")
+		t.Error("updated poll has invalid modified choices")
 	}
 }
 
@@ -151,7 +151,7 @@ func TestAddSubmission(t *testing.T) {
 	poll.AddSubmission(&submission)
 
 	if !reflect.DeepEqual(poll, pollAfter) {
-		t.Error("Poll does not have updated choice counts")
+		t.Error("poll does not have updated choice counts")
 	}
 }
 
@@ -162,7 +162,7 @@ func TestAddSubmissionEmpty(t *testing.T) {
 	err := poll.AddSubmission(&submission)
 
 	if err == nil && err.Error() == "Submission cannot be empty" {
-		t.Error("Poll allowed empty submission")
+		t.Error("poll allowed empty submission")
 	}
 }
 
@@ -177,6 +177,6 @@ func TestAddSubmissionArchived(t *testing.T) {
 	err := poll.AddSubmission(&submission)
 
 	if err == nil && err.Error() == "Poll is archived" {
-		t.Error("Archived poll allowed submission")
+		t.Error("archived poll allowed submission")
 	}
 }
