@@ -128,5 +128,5 @@ func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
 // Run the app on it's router
 func (a *App) Run(host string) {
 	log.Printf("Listening on %s", host)
-	log.Fatal(http.ListenAndServe(host, handlers.LoggingHandler(os.Stdout, a.Router)))
+	log.Fatal(http.ListenAndServe(host, handlers.CombinedLoggingHandler(os.Stdout, a.Router)))
 }
