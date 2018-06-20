@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"sort"
+	"strconv"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -12,7 +12,7 @@ import (
 
 // PollChoice contains options for a single poll choice
 type PollChoice struct {
-	ID    uint   `json:"id"`
+	ID    uint64 `json:"id"`
 	Name  string `json:"name"`
 	Color string `json:"color"`
 	Count uint   `json:"count"`
@@ -28,8 +28,8 @@ type PollOptions struct {
 
 // PollContent contains questions / options for a poll
 type PollContent struct {
-	Choices []PollChoice `json:"choices"`
-	Options PollOptions  `json:"opions"`
+	Choices map[string]*PollChoice `json:"choices"`
+	Options PollOptions            `json:"opions"`
 }
 
 // Value marshals data for jsonb column
@@ -53,13 +53,6 @@ func (p *PollContent) Scan(src interface{}) error {
 	return nil
 }
 
-// Sort sorts a poll's choices by ID
-func (p *PollContent) Sort() {
-	sort.Slice(p.Choices, func(i, j int) bool {
-		return p.Choices[i].ID < p.Choices[j].ID
-	})
-}
-
 // Poll contains a single poll data
 type Poll struct {
 	ID        uint64    `gorm:"primary_key"`
@@ -68,6 +61,25 @@ type Poll struct {
 	Title     string      `gorm:"not null"`
 	Archived  bool        `gorm:"not null"`
 	Content   PollContent `gorm:"type:jsonb not null default '{}'::jsonb"`
+}
+
+// Initialize sets initial values
+func (p *Poll) Initialize() error {
+	for key, val := range p.Content.Choices {
+		val.Count = 0
+
+		// parse key, set as id
+		id, err := strconv.ParseUint(key, 10, 32)
+		if err != nil {
+			// invalid key
+			return err
+		}
+		val.ID = id
+	}
+
+	p.CreatedAt = time.Now()
+
+	return nil
 }
 
 // Archive archives a poll and disables submissions
@@ -82,20 +94,18 @@ func (p *Poll) Restore() {
 
 // Update updates a poll's options without modifying choice counts
 func (p *Poll) Update(u *Poll) {
-	// kind of inefficient? O(n^2) maybe use a map instead?
-OUTER:
-	for i, updated := range u.Content.Choices {
+	for keyUpdated, valUpdated := range u.Content.Choices {
 		// search previous choices for match
-		for _, previous := range p.Content.Choices {
-			// found match
-			if previous.ID == updated.ID {
-				// set updated data counts to previous count
-				u.Content.Choices[i].Count = previous.Count
-				continue OUTER
-			}
+		previous, found := p.Content.Choices[keyUpdated]
+
+		if found {
+			// update existing choice to previous count
+			u.Content.Choices[keyUpdated].Count = previous.Count
+		} else {
+			// (new choice) not found in previous poll
+			valUpdated.Count = 0
+			u.Content.Choices[keyUpdated] = valUpdated
 		}
-		// (new choice) not found in previous poll
-		u.Content.Choices[i].Count = 0
 	}
 
 	// set current poll data to new updated data
@@ -103,18 +113,32 @@ OUTER:
 	*p = *u
 }
 
-// Submissions contain a single submission of
+// AddSubmission adds a single submission to a poll
+func (p *Poll) AddSubmission(s *SubmissionOptions) {
+	for _, id := range s.ChoiceIDs {
+		if val, ok := p.Content.Choices[string(id)]; ok {
+			val.Count++
+		}
+	}
+}
+
+// Submission contain a single submission of
 // a poll to keep track of duplicates
-type Submissions struct {
+type Submission struct {
 	ID        uint64    `gorm:"primary_key"`
 	CreatedAt time.Time `gorm:"not null"`
 	IP        string    `gorm:"not null"`
 	PollID    uint64    `gorm:"not null"`
 }
 
+// SubmissionOptions contains selected choice data from a submission
+type SubmissionOptions struct {
+	ChoiceIDs []uint `json:"choice_ids"`
+}
+
 // DBMigrate will create and migrate the tables, and then make the some relationships if necessary
 func DBMigrate(db *gorm.DB) *gorm.DB {
-	db.AutoMigrate(&Poll{}, &Submissions{})
-	db.Model(&Submissions{}).AddForeignKey("poll_id", "polls(id)", "CASCADE", "CASCADE")
+	db.AutoMigrate(&Poll{}, &Submission{})
+	db.Model(&Submission{}).AddForeignKey("poll_id", "polls(id)", "CASCADE", "CASCADE")
 	return db
 }
