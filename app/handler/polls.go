@@ -29,6 +29,12 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// initialize poll and check err
+	if err := poll.Initialize(); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	if err := db.Save(&poll).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
