@@ -72,7 +72,7 @@ func (p *Poll) Initialize() error {
 		id, err := strconv.ParseUint(key, 10, 32)
 		if err != nil {
 			// invalid key
-			return err
+			return errors.New("invalid poll ID")
 		}
 		val.ID = id
 	}
@@ -117,12 +117,12 @@ func (p *Poll) Update(u *Poll) {
 func (p *Poll) AddSubmission(s *SubmissionOptions) error {
 	// check for empty submission
 	if len(s.ChoiceIDs) == 0 {
-		return errors.New("Submission cannot be empty")
+		return errors.New("submission cannot be empty")
 	}
 
 	// check if archived
 	if p.Archived {
-		return errors.New("Poll is archived")
+		return errors.New("poll is archived")
 	}
 
 	// check if radio type poll, remove all but first in submissions
