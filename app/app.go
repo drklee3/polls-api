@@ -54,6 +54,8 @@ func (a *App) setRouters() {
 	a.Get("/polls/{id:[0-9]+}", a.GetPoll)
 	a.Put("/polls/{id:[0-9]+}", a.UpdatePoll)
 
+	a.Post("/polls/{id:[0-9]+}/vote", a.VotePoll)
+
 	a.Delete("/polls/{id:[0-9]+}", a.DeletePoll)
 	a.Put("/polls/{id:[0-9]+}/archive", a.ArchivePoll)
 	a.Delete("/polls/{id:[0-9]+}/archive", a.RestorePoll)
@@ -96,6 +98,11 @@ func (a *App) CreatePoll(w http.ResponseWriter, r *http.Request) {
 // GetPoll gets a single poll
 func (a *App) GetPoll(w http.ResponseWriter, r *http.Request) {
 	handler.GetPoll(a.DB, w, r)
+}
+
+// VotePoll creates a vote on a poll
+func (a *App) VotePoll(w http.ResponseWriter, r *http.Request) {
+	handler.VotePoll(a.DB, w, r)
 }
 
 // UpdatePoll updates a single poll

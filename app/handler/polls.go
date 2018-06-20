@@ -48,6 +48,25 @@ func GetPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, poll)
 }
 
+// VotePoll creates a poll submission
+func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	poll, err := getPoll(db, w, r)
+	if err != nil {
+		log.Printf("error: %s", err)
+		return
+	}
+
+	var submission model.SubmissionOptions
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&submission); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
+
+	respondJSON(w, http.StatusOK, poll)
+}
+
 // UpdatePoll updates poll options
 func UpdatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	poll, err := getPoll(db, w, r)
