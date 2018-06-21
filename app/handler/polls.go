@@ -84,6 +84,22 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// potential for data race here?
+	// in the case another submission is made at this point
+	// the new submission would have old value
+
+	// save submission
+	if err := db.Save(&submission).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// save poll data
+	if err := db.Save(&poll).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	respondJSON(w, http.StatusOK, poll)
 }
 
