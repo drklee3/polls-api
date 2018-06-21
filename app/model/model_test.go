@@ -7,7 +7,7 @@ import (
 
 func TestUpdate(t *testing.T) {
 	originalPoll := Poll{
-		Content: PollContent{
+		Content: &PollContent{
 			Choices: map[string]*PollChoice{
 				"4": &PollChoice{
 					ID:    4,
@@ -30,7 +30,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	modifiedPoll := Poll{
-		Content: PollContent{
+		Content: &PollContent{
 			Choices: map[string]*PollChoice{
 				"4": &PollChoice{
 					ID:    4,
@@ -57,7 +57,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	shouldEqual := Poll{
-		Content: PollContent{
+		Content: &PollContent{
 			Choices: map[string]*PollChoice{
 				"4": &PollChoice{
 					ID:    4,
@@ -83,26 +83,19 @@ func TestUpdate(t *testing.T) {
 		},
 	}
 
-	toUpdatePoll := originalPoll
-	// deep copy array of choices
-	toUpdatePoll.Content.Choices = map[string]*PollChoice{}
-	for key, element := range originalPoll.Content.Choices {
-		toUpdatePoll.Content.Choices[key] = element
-	}
-
-	toUpdatePoll.Update(&modifiedPoll)
+	originalPoll.Update(&modifiedPoll)
 
 	// make updated timestamp the same
-	shouldEqual.UpdatedAt = toUpdatePoll.UpdatedAt
+	shouldEqual.UpdatedAt = originalPoll.UpdatedAt
 
-	if !reflect.DeepEqual(toUpdatePoll, shouldEqual) {
+	if !reflect.DeepEqual(originalPoll, shouldEqual) {
 		t.Error("updated poll has invalid modified choices")
 	}
 }
 
 func TestAddSubmission(t *testing.T) {
 	poll := Poll{
-		Content: PollContent{
+		Content: &PollContent{
 			Choices: map[string]*PollChoice{
 				"4": &PollChoice{
 					ID:    4,
@@ -125,7 +118,7 @@ func TestAddSubmission(t *testing.T) {
 	}
 
 	pollAfter := Poll{
-		Content: PollContent{
+		Content: &PollContent{
 			Choices: map[string]*PollChoice{
 				"4": &PollChoice{
 					ID:    4,

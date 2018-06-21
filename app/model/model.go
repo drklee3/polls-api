@@ -44,6 +44,7 @@ type Poll struct {
 }
 
 // MarshalContent converts struct content to jsonb (serializes)
+// run when save to database
 func (p *Poll) MarshalContent() error {
 	var err error
 	p.ContentB.RawMessage, err = json.Marshal(p.Content)
@@ -51,6 +52,7 @@ func (p *Poll) MarshalContent() error {
 }
 
 // UnmarshalContent converts json to a PollContent struct (deserializes)
+// run when read from database
 func (p *Poll) UnmarshalContent() error {
 	return json.Unmarshal(p.ContentB.RawMessage, &p.Content)
 }
