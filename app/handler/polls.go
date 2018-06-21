@@ -15,8 +15,17 @@ import (
 
 // GetAllPolls gets the list of all polls
 func GetAllPolls(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	polls := []model.Poll{}
+	// array of pointers so the loop modifies instead of clones
+	polls := []*model.Poll{}
 	db.Find(&polls)
+
+	for _, poll := range polls {
+		// unmarshall each poll content
+		if err := poll.UnmarshalContent(); err != nil {
+			respondError(w, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
 	respondJSON(w, http.StatusOK, polls)
 }
 
@@ -31,6 +40,12 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// marshal content / serialize back to json
+	if err := poll.MarshalContent(); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	// initialize poll and check err
 	if err := poll.Initialize(); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
@@ -41,13 +56,18 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	if err := poll.UnmarshalContent(); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	respondJSON(w, http.StatusCreated, poll)
 }
 
 // GetPoll gets a single poll
 func GetPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	// get the poll item
-	poll, err := getPoll(db, w, r)
+	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -58,7 +78,7 @@ func GetPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // VotePoll creates a poll submission
 func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r)
+	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -77,6 +97,12 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// unmarshal content / json to struct
+	if err := poll.UnmarshalContent(); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	// add submission
 	if err := poll.AddSubmission(&submission); err != nil {
 		// check for errors when adding submission
@@ -87,6 +113,12 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	// potential for data race here?
 	// in the case another submission is made at this point
 	// the new submission would have old value
+
+	// marshal content / serialize back to json
+	if err := poll.MarshalContent(); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	// save submission
 	if err := db.Save(&submission).Error; err != nil {
@@ -105,7 +137,7 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // UpdatePoll updates poll options
 func UpdatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r)
+	poll, err := getPoll(db, w, r, true)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -134,7 +166,7 @@ func UpdatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // DeletePoll deletes a single poll
 func DeletePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r)
+	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -150,7 +182,7 @@ func DeletePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // ArchivePoll disables further submissions for a single poll
 func ArchivePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r)
+	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -166,7 +198,7 @@ func ArchivePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // RestorePoll re-enables submissions for a single poll
 func RestorePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r)
+	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -181,7 +213,7 @@ func RestorePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 // getPoll gets a single poll by id and responds with 404 if not found
-func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) (*model.Poll, error) {
+func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request, shouldLock bool) (*model.Poll, error) {
 	vars := mux.Vars(r)
 	idStr := vars["id"]
 
@@ -194,6 +226,13 @@ func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) (*model.Poll, 
 
 	// get poll from db
 	var poll model.Poll
+
+	// set for update row lock
+	// https://www.postgresql.org/docs/current/static/explicit-locking.html#LOCKING-ROWS
+	if shouldLock {
+		db = db.Set("gorm:query_option", "FOR UPDATE")
+	}
+
 	if err := db.First(&poll, model.Poll{ID: id}).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil, err

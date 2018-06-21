@@ -1,13 +1,13 @@
 package model
 
 import (
-	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"strconv"
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // PollChoice contains options for a single poll choice
@@ -29,28 +29,7 @@ type PollOptions struct {
 // PollContent contains questions / options for a poll
 type PollContent struct {
 	Choices map[string]*PollChoice `json:"choices"`
-	Options PollOptions            `json:"opions"`
-}
-
-// Value marshals data for jsonb column
-func (p *PollContent) Value() (driver.Value, error) {
-	j, err := json.Marshal(p)
-	return j, err
-}
-
-// Scan unmarshals data for jsonb column
-func (p *PollContent) Scan(src interface{}) error {
-	source, ok := src.([]byte)
-	if !ok {
-		return errors.New("type assertion .([]byte) failed")
-	}
-
-	var i PollContent
-	if err := json.Unmarshal(source, &i); err != nil {
-		return err
-	}
-
-	return nil
+	Options PollOptions            `json:"options"`
 }
 
 // Poll contains a single poll data
@@ -58,9 +37,22 @@ type Poll struct {
 	ID        uint64    `gorm:"primary_key"`
 	CreatedAt time.Time `gorm:"not null" sql:"DEFAULT:current_timestamp"`
 	UpdatedAt *time.Time
-	Title     string      `gorm:"not null"`
-	Archived  bool        `gorm:"not null"`
-	Content   PollContent `gorm:"type:jsonb not null default '{}'::jsonb"`
+	Title     string         `gorm:"not null"`
+	Archived  bool           `gorm:"not null"`
+	ContentB  postgres.Jsonb `sql:"type:jsonb" json:"-" gorm:"column:content; type:jsonb; not null; default '{}'::jsonb"`
+	Content   PollContent    `sql:"-" gorm:"-" json:"content"`
+}
+
+// MarshalContent converts struct content to jsonb (serializes)
+func (p *Poll) MarshalContent() error {
+	var err error
+	p.ContentB.RawMessage, err = json.Marshal(p.Content)
+	return err
+}
+
+// UnmarshalContent converts json to a PollContent struct (deserializes)
+func (p *Poll) UnmarshalContent() error {
+	return json.Unmarshal(p.ContentB.RawMessage, &p.Content)
 }
 
 // Initialize sets initial values
