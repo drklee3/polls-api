@@ -40,7 +40,7 @@ type Poll struct {
 	Title     string         `gorm:"not null"`
 	Archived  bool           `gorm:"not null"`
 	ContentB  postgres.Jsonb `sql:"type:jsonb" json:"-" gorm:"column:content; type:jsonb; not null; default '{}'::jsonb"`
-	Content   PollContent    `sql:"-" gorm:"-" json:"content"`
+	Content   *PollContent   `sql:"-" gorm:"-" json:"content"`
 }
 
 // MarshalContent converts struct content to jsonb (serializes)
@@ -61,7 +61,7 @@ func (p *Poll) Initialize() error {
 		val.Count = 0
 
 		// parse key, set as id
-		id, err := strconv.ParseUint(key, 10, 32)
+		id, err := strconv.ParseUint(key, 10, 64)
 		if err != nil {
 			// invalid key
 			return errors.New("invalid poll ID")

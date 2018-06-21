@@ -40,14 +40,14 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// marshal content / serialize back to json
-	if err := poll.MarshalContent(); err != nil {
+	// initialize poll and check err
+	if err := poll.Initialize(); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// initialize poll and check err
-	if err := poll.Initialize(); err != nil {
+	// marshal content / serialize back to json
+	if err := poll.MarshalContent(); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -61,6 +61,7 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
 	respondJSON(w, http.StatusCreated, poll)
 }
 
@@ -70,6 +71,11 @@ func GetPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
+		return
+	}
+
+	if err := poll.UnmarshalContent(); err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -109,10 +115,6 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	// potential for data race here?
-	// in the case another submission is made at this point
-	// the new submission would have old value
 
 	// marshal content / serialize back to json
 	if err := poll.MarshalContent(); err != nil {
@@ -228,6 +230,8 @@ func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request, shouldLock boo
 	var poll model.Poll
 
 	// set for update row lock
+	// this prevents data races in the db if a vote was made in the middle of another one
+	// locks a single row for **updates**, allows reads still
 	// https://www.postgresql.org/docs/current/static/explicit-locking.html#LOCKING-ROWS
 	if shouldLock {
 		db = db.Set("gorm:query_option", "FOR UPDATE")
