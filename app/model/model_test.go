@@ -151,6 +151,27 @@ func TestAddSubmission(t *testing.T) {
 	}
 }
 
+func TestInitializePoll(t *testing.T) {
+	poll := Poll{
+		Content: &PollContent{
+			Choices: map[string]*PollChoice{
+				"0": &PollChoice{
+					ID:   0,
+					Name: "first",
+				},
+				"5": &PollChoice{
+					ID:   5,
+					Name: "this should fail",
+				},
+			},
+		},
+	}
+
+	if err := poll.Initialize(); err == nil {
+		t.Error("poll should error with invalid choice ID")
+	}
+}
+
 func TestAddSubmissionEmpty(t *testing.T) {
 	poll := Poll{}
 	submission := Submission{}

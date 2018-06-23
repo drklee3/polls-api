@@ -59,6 +59,8 @@ func (p *Poll) UnmarshalContent() error {
 
 // Initialize sets initial values
 func (p *Poll) Initialize() error {
+	size := len(p.Content.Choices)
+
 	for key, val := range p.Content.Choices {
 		val.Count = 0
 
@@ -66,9 +68,14 @@ func (p *Poll) Initialize() error {
 		id, err := strconv.ParseUint(key, 10, 64)
 		if err != nil {
 			// invalid key
-			return errors.New("invalid poll ID")
+			return errors.New("invalid poll choice ID")
 		}
 		val.ID = id
+
+		// check if id too big, this is probably not necessary
+		if uint64(size) <= id {
+			return errors.New("invalid poll choice ID")
+		}
 	}
 
 	p.CreatedAt = time.Now()
