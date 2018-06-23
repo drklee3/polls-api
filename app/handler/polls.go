@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/drklee3/polls-api/app/model"
-	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
 
@@ -90,10 +88,25 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// unmarshal content / json to struct
+	if err := poll.UnmarshalContent(); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
 	submission := model.Submission{
 		CreatedAt: time.Now(),
 		IP:        strings.Split(r.RemoteAddr, ":")[0],
 		PollID:    poll.ID,
+	}
+
+	// check if restricted to single vote
+	if poll.Content.Options.Restrictions == "single" {
+		// if submission exists, return with error
+		if hasSubmission(db, &submission, poll) {
+			respondError(w, http.StatusBadRequest, "user already voted")
+			return
+		}
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -102,12 +115,6 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
-	// unmarshal content / json to struct
-	if err := poll.UnmarshalContent(); err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
-		return
-	}
 
 	// add submission
 	if err := poll.AddSubmission(&submission); err != nil {
@@ -216,11 +223,7 @@ func RestorePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // getPoll gets a single poll by id and responds with 404 if not found
 func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request, shouldLock bool) (*model.Poll, error) {
-	vars := mux.Vars(r)
-	idStr := vars["id"]
-
-	// parse id from string
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := parsePollID(r)
 	if err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil, err
@@ -243,4 +246,9 @@ func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request, shouldLock boo
 	}
 
 	return &poll, nil
+}
+
+// hasSubmission checks if a poll has a submission by a user (determined by ip)
+func hasSubmission(db *gorm.DB, s *model.Submission, p *model.Poll) bool {
+	return db.First(&s, model.Submission{IP: s.IP, PollID: p.ID}).Error == nil
 }

@@ -136,12 +136,19 @@ func (p *Poll) AddSubmission(s *Submission) error {
 	}
 
 	modified := 0
+	voted := map[uint]bool{} // holds voted ids
 
 	for _, id := range s.ChoiceIDs {
+		// check for duplicates
+		if _, ok := voted[id]; ok {
+			return errors.New("cannot have duplicate votes")
+		}
+
 		strID := strconv.FormatUint(uint64(id), 10)
 		if val, ok := p.Content.Choices[strID]; ok {
 			val.Count++
 			modified++ // update modified choices
+			voted[id] = true
 		}
 	}
 

@@ -3,6 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // respondJSON makes the response with payload as json format
@@ -21,4 +24,12 @@ func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
 // respondError makes the error response with payload as json format
 func respondError(w http.ResponseWriter, code int, message string) {
 	respondJSON(w, code, map[string]string{"error": message})
+}
+
+func parsePollID(r *http.Request) (uint64, error) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	// parse id from string
+	return strconv.ParseUint(idStr, 10, 64)
 }
