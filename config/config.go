@@ -34,7 +34,7 @@ type DBConfig struct {
 func GetConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Printf(".env file not found")
 	}
 
 	logModeStr := os.Getenv("DB_LOG")
