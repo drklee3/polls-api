@@ -82,7 +82,7 @@ func GetPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // VotePoll creates a poll submission
 func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r, false)
+	poll, err := getPoll(db, w, r, true)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
@@ -146,7 +146,7 @@ func VotePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 // UpdatePoll updates poll options
 func UpdatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	poll, err := getPoll(db, w, r, true)
+	poll, err := getPoll(db, w, r, false)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return
