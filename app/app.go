@@ -29,6 +29,8 @@ func (a *App) Initialize(config *config.Config) {
 		config.DB.Dbname)
 
 	db, err := gorm.Open("postgres", dbURI)
+	db.LogMode(config.DB.LogMode)
+
 	if err != nil {
 		log.Fatal("Could not connect database", err.Error())
 	}

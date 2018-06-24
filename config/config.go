@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -26,6 +27,7 @@ type DBConfig struct {
 	Password string
 	Dbname   string
 	Host     string
+	LogMode  bool
 }
 
 // GetConfig gets the database config from environment variables
@@ -35,12 +37,21 @@ func GetConfig() *Config {
 		log.Fatal("Error loading .env file")
 	}
 
+	logModeStr := os.Getenv("DB_LOG")
+
+	logMode := false
+
+	if b, err := strconv.ParseBool(logModeStr); err == nil {
+		logMode = b
+	}
+
 	config := &Config{
 		DB: &DBConfig{
 			Username: os.Getenv("DB_USERNAME"),
 			Password: os.Getenv("DB_PASSWORD"),
 			Dbname:   os.Getenv("DB_NAME"),
 			Host:     os.Getenv("DB_HOST"),
+			LogMode:  logMode,
 		},
 		Interface: os.Getenv("INTERFACE"),
 		Port:      os.Getenv("PORT"),
