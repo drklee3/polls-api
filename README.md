@@ -30,4 +30,22 @@ DB_LOG=1             # gorm logging
 
 # Endpoints
 
+## /polls
 
+* `Get` Get all polls
+* `Post` Create a new poll
+
+## /polls/{id:[0-9]+}
+
+* `Get` Get a single poll
+* `Put` Update a poll
+* `Delete` Delete a poll
+
+## /polls/{id:[0-9]+}/vote
+
+* `Post` Vote on a poll
+
+## /polls/{id:[0-9]+}/archive
+
+* `Put` Archive a poll (disables votes)
+* `Delete` Restores a poll (re-enables votes)
