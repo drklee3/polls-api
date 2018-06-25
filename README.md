@@ -15,7 +15,7 @@ go build
 
 # Configuration
 
-Configuration options are read from environment variables, optionally loaded from an `.env` file.  The variables used are given below with example values. If `INTERFACE`, `PORT`, or `DB_LOG` are not provided, they will use `127.0.0.1`, `3000`, `false` respecitvely.
+Configuration options are read from environment variables, optionally loaded from an `.env` file.  The variables used are given below with example values. Default values for `INTERFACE`, `PORT`, or `DB_LOG` if not given are `127.0.0.1`, `3000`, `false` respectively.
 
 ```shell
 DB_USERNAME=admin
