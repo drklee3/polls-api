@@ -32,20 +32,20 @@ DB_LOG=1             # gorm logging
 
 ## /polls
 
-* `Get` Get all polls
-* `Post` Create a new poll
+* `GET` Get all polls
+* `POST` Create a new poll
 
 ## /polls/{id:[0-9]+}
 
-* `Get` Get a single poll
-* `Put` Update a poll
-* `Delete` Delete a poll
+* `GET` Get a single poll
+* `PUT` Update a poll
+* `DELETE` Delete a poll
 
 ## /polls/{id:[0-9]+}/vote
 
-* `Post` Vote on a poll
+* `POST` Vote on a poll
 
 ## /polls/{id:[0-9]+}/archive
 
-* `Put` Archive a poll (disables votes)
-* `Delete` Restores a poll (re-enables votes)
+* `PUT` Archive a poll (disables votes)
+* `DELETE` Restores a poll (re-enables votes)
