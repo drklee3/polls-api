@@ -67,3 +67,8 @@ func getPoll(db *gorm.DB, w http.ResponseWriter, r *http.Request, shouldLock boo
 func hasSubmission(db *gorm.DB, s *model.Submission, p *model.Poll) bool {
 	return db.First(&s, model.Submission{IP: s.IP, PollID: p.ID}).Error == nil
 }
+
+// hasUUID checks if a poll has a given id
+func hasUUID(db *gorm.DB, p *model.Poll) bool {
+	return db.First(&p, model.Poll{UUID: p.UUID}).Error == nil
+}

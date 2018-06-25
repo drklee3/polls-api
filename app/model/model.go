@@ -1,9 +1,13 @@
 package model
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -35,6 +39,7 @@ type PollContent struct {
 // Poll contains a single poll data
 type Poll struct {
 	ID        uint64    `gorm:"primary_key"`
+	UUID      string    `gorm:"not null"` // not really an actual uuid
 	CreatedAt time.Time `gorm:"not null" sql:"DEFAULT:current_timestamp"`
 	UpdatedAt *time.Time
 	Title     string         `gorm:"not null"`
@@ -81,6 +86,17 @@ func (p *Poll) Initialize() error {
 	p.CreatedAt = time.Now()
 
 	return nil
+}
+
+// SetUUID sets the uuid for a poll
+func (p *Poll) SetUUID() {
+	// generate short "uuid" for urls
+	b := make([]byte, 8)
+	if _, err := rand.Read(b); err != nil {
+		log.Fatal("failed to generate random UUID")
+	}
+
+	p.UUID = strings.ToLower(fmt.Sprintf("%X", b))
 }
 
 // Archive archives a poll and disables submissions

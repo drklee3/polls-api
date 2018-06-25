@@ -44,6 +44,14 @@ func CreatePoll(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for {
+		poll.SetUUID()
+
+		if !hasUUID(db, &poll) {
+			break
+		}
+	}
+
 	// marshal content / serialize back to json
 	if err := poll.MarshalContent(); err != nil {
 		respondError(w, http.StatusBadRequest, err.Error())
