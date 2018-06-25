@@ -9,19 +9,19 @@ func TestUpdate(t *testing.T) {
 	originalPoll := Poll{
 		Content: &PollContent{
 			Choices: map[string]*PollChoice{
-				"4": &PollChoice{
+				"4": {
 					ID:    4,
 					Count: 100,
 				},
-				"25": &PollChoice{
+				"25": {
 					ID:    25,
 					Count: 324,
 				},
-				"1": &PollChoice{
+				"1": {
 					ID:    1,
 					Count: 123,
 				},
-				"5": &PollChoice{
+				"5": {
 					ID:    5,
 					Count: 9,
 				},
@@ -32,23 +32,23 @@ func TestUpdate(t *testing.T) {
 	modifiedPoll := Poll{
 		Content: &PollContent{
 			Choices: map[string]*PollChoice{
-				"4": &PollChoice{
+				"4": {
 					ID:    4,
 					Count: 10000,
 				},
-				"25": &PollChoice{
+				"25": {
 					ID:    25,
 					Count: 123525,
 				},
-				"1": &PollChoice{
+				"1": {
 					ID:    1,
 					Count: 41234235,
 				},
-				"5": &PollChoice{
+				"5": {
 					ID:    5,
 					Count: 12987249324,
 				},
-				"6": &PollChoice{
+				"6": {
 					ID:    6,
 					Count: 123,
 				},
@@ -59,23 +59,23 @@ func TestUpdate(t *testing.T) {
 	shouldEqual := Poll{
 		Content: &PollContent{
 			Choices: map[string]*PollChoice{
-				"4": &PollChoice{
+				"4": {
 					ID:    4,
 					Count: 100,
 				},
-				"25": &PollChoice{
+				"25": {
 					ID:    25,
 					Count: 324,
 				},
-				"1": &PollChoice{
+				"1": {
 					ID:    1,
 					Count: 123,
 				},
-				"5": &PollChoice{
+				"5": {
 					ID:    5,
 					Count: 9,
 				},
-				"6": &PollChoice{
+				"6": {
 					ID:    6,
 					Count: 0,
 				},
@@ -97,19 +97,19 @@ func TestAddSubmission(t *testing.T) {
 	poll := Poll{
 		Content: &PollContent{
 			Choices: map[string]*PollChoice{
-				"4": &PollChoice{
+				"4": {
 					ID:    4,
 					Count: 100,
 				},
-				"25": &PollChoice{
+				"25": {
 					ID:    25,
 					Count: 324,
 				},
-				"1": &PollChoice{
+				"1": {
 					ID:    1,
 					Count: 123,
 				},
-				"5": &PollChoice{
+				"5": {
 					ID:    5,
 					Count: 9,
 				},
@@ -120,19 +120,19 @@ func TestAddSubmission(t *testing.T) {
 	pollAfter := Poll{
 		Content: &PollContent{
 			Choices: map[string]*PollChoice{
-				"4": &PollChoice{
+				"4": {
 					ID:    4,
 					Count: 101,
 				},
-				"25": &PollChoice{
+				"25": {
 					ID:    25,
 					Count: 324,
 				},
-				"1": &PollChoice{
+				"1": {
 					ID:    1,
 					Count: 123,
 				},
-				"5": &PollChoice{
+				"5": {
 					ID:    5,
 					Count: 9,
 				},
@@ -155,11 +155,11 @@ func TestInitializePoll(t *testing.T) {
 	poll := Poll{
 		Content: &PollContent{
 			Choices: map[string]*PollChoice{
-				"0": &PollChoice{
+				"0": {
 					ID:   0,
 					Name: "first",
 				},
-				"5": &PollChoice{
+				"5": {
 					ID:   5,
 					Name: "this should fail",
 				},
