@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/drklee3/polls-api/app/handler"
-	"github.com/drklee3/polls-api/app/model"
-	"github.com/drklee3/polls-api/config"
+	"github.com/drklee3/polls-api/api/app/handler"
+	"github.com/drklee3/polls-api/api/app/model"
+	"github.com/drklee3/polls-api/api/config"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/drklee3/polls-api/app"
-	"github.com/drklee3/polls-api/config"
+	"github.com/drklee3/polls-api/api/app"
+	"github.com/drklee3/polls-api/api/config"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 

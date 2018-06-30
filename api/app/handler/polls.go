@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/drklee3/polls-api/app/model"
+	"github.com/drklee3/polls-api/api/app/model"
 	"github.com/jinzhu/gorm"
 )
 

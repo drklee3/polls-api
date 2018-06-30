@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/drklee3/polls-api/app/model"
+	"github.com/drklee3/polls-api/api/app/model"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
