@@ -3,26 +3,43 @@ import * as React from "react";
 export default class extends React.Component {
   public render() {
     return(
-      <div className="uk-container">
-        <nav className="uk-navbar-transparent" uk-navbar="true">
-          <div className="uk-navbar-left">
-            <ul className="uk-navbar-nav">
-              <li className="uk-active"><a href="#">Home</a></li>
-              <li>
-                <a href="#">Parent</a>
-                <div className="uk-navbar-dropdown">
-                  <ul className="uk-nav uk-navbar-dropdown-nav">
-                    <li className="uk-active"><a href="#">Active</a></li>
-                    <li><a href="#">Item</a></li>
-                    <li><a href="#">Item</a></li>
-                  </ul>
-                </div>
-              </li>
-              <li><a href="#">Item</a></li>
-            </ul>
+      <nav className="navbar is-transparent">
+        <div className="navbar-brand">
+          <a className="navbar-item" href="https://bulma.io">
+            Polls
+          </a>
+          <div className="navbar-burger burger" data-target="navbarExampleTransparentExample">
+            <span />
+            <span />
+            <span />
           </div>
-        </nav>
-      </div>
+        </div>
+
+        <div id="navbar" className="navbar-menu">
+          <div className="navbar-start">
+            <a className="navbar-item" href="/">
+              Home
+            </a>
+          </div>
+
+          <div className="navbar-end">
+            <div className="navbar-item">
+              <div className="field is-grouped">
+                <p className="control">
+                  <a className="bd-tw-button button" data-social-network="Twitter" data-social-action="tweet" data-social-target="http://localhost:4000" target="_blank" href="https://twitter.com/intent/tweet?text=Bulma: a modern CSS framework based on Flexbox&amp;hashtags=bulmaio&amp;url=http://localhost:4000&amp;via=jgthms">
+                    <span className="icon">
+                      <i className="fab fa-twitter" />
+                    </span>
+                    <span>
+                      Tweet
+                    </span>
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
     );
   }
 }

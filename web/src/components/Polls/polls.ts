@@ -8,7 +8,9 @@ interface PollChoice {
 }
 
 interface PollContent {
-  choices: {[key: string]: PollChoice};
+  choices: {
+    [key: string]: PollChoice
+  };
   options: PollOptions;
 }
 

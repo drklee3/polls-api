@@ -27,31 +27,35 @@ export default class extends React.Component {
     console.log(polls); // tslint:disable-line
 
     return (
-      <div className="uk-column-1-2">
-        {
-          polls.map(poll => (
-            <div className="uk-card uk-card-body">
-              <h3 className="uk-card-title">
-                {poll.Title}
-              </h3>
-              <p className="uk-card-body">
-                <ul>    
-                  {
-                    Object.keys(poll.content.choices).map(choiceID => {
-                      const choice = poll.content.choices[choiceID];
-                      
-                      return (
-                        <li key={choiceID}>
-                          {`${choice.name} - ${choice.count}`}
-                        </li>
-                      );
-                    })
-                  }
-                </ul>
-              </p>
-            </div>
-          ))
-        }
+      <div className="columns">
+        <div className="column">
+          {
+            polls.map(poll => (
+              <div className="card">
+                <div className="card-content">
+                  <p className="title is-5">
+                    {poll.Title}
+                  </p>
+                  <p className="content">
+                    <ul>    
+                      {
+                        Object.keys(poll.content.choices).map(choiceID => {
+                          const choice = poll.content.choices[choiceID];
+                          
+                          return (
+                            <li key={choiceID}>
+                              {`${choice.name} - ${choice.count}`}
+                            </li>
+                          );
+                        })
+                      }
+                    </ul>
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
       </div>
     );
   }
