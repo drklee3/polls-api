@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/justinas/alice"
 )
 
 // App has router and db instances
@@ -130,5 +131,8 @@ func (a *App) RestorePoll(w http.ResponseWriter, r *http.Request) {
 // Run the app on it's router
 func (a *App) Run(host string) {
 	log.Printf("Listening on %s", host)
-	log.Fatal(http.ListenAndServe(host, handlers.CombinedLoggingHandler(os.Stdout, a.Router)))
+	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+
+	chain := alice.New(handlers.CORS(originsOk)).Then(handlers.CombinedLoggingHandler(os.Stdout, a.Router))
+	log.Fatal(http.ListenAndServe(host, chain))
 }

@@ -27,6 +27,7 @@ DB_HOST=127.0.0.1
 INTERFACE=127.0.0.1  # web server interface
 PORT=3000            # web server port
 DB_LOG=1             # gorm logging
+ORIGIN_ALLOWED=*     # CORS allowed origins
 ```
 
 # Endpoints
