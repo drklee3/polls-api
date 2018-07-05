@@ -1,6 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 import "uikit/dist/css/uikit.min.css";
 import "uikit/dist/js/uikit.min.js";
+import Polls from "./components/Polls/Polls";
 
 import NavBar from "./components/NavBar/NavBar";
 
@@ -23,6 +24,11 @@ class App extends React.Component {
 						  </div>
 					  </div>
 				  </div>
+        </section>
+        <section className="uk-section uk-section-small">
+          <div className="uk-container">
+            <Polls />
+          </div>
         </section>
       </div>
     );

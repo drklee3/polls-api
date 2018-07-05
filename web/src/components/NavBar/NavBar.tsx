@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 export default class extends React.Component {
   public render() {
@@ -23,6 +23,6 @@ export default class extends React.Component {
           </div>
         </nav>
       </div>
-    )
+    );
   }
 }
