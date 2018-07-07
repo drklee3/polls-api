@@ -1,5 +1,11 @@
 import axios from "axios";
 
+export enum Status {
+  Loading,
+  Success,
+  Error,
+}
+
 interface PollChoice {
   id: number;
   name: string;
@@ -35,6 +41,17 @@ export function getPolls() {
   return new Promise((resolve, reject) => {
     axios
       .get("http://127.0.0.1:3001/polls")
+      .then(response => {
+        resolve(response.data);
+      })
+      .catch(reject);
+  });
+}
+
+export function getPoll(id: number) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`http://127.0.0.1:3001/polls/${id}`)
       .then(response => {
         resolve(response.data);
       })

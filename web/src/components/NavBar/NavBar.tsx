@@ -1,13 +1,15 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
+
 
 export default class extends React.Component {
   public render() {
     return(
       <nav className="navbar is-transparent">
         <div className="navbar-brand">
-          <a className="navbar-item" href="https://bulma.io">
+          <Link className="navbar-item" to="/">
             Polls
-          </a>
+          </Link>
           <div className="navbar-burger burger" data-target="navbarExampleTransparentExample">
             <span />
             <span />
