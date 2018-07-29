@@ -58,3 +58,14 @@ export function getPoll(id: number) {
       .catch(reject);
   });
 }
+
+export function submitPoll(id: number, data: Poll) {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`http://127.0.0.1:3001/polls/${id}/vote`, data)
+      .then(response => {
+        resolve(response.data);
+      })
+      .catch(reject);
+  }) 
+}
