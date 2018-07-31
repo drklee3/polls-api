@@ -55,6 +55,7 @@ export function getPolls() {
       .catch(reject);
   });
 }
+
 /**
  * Gets a single poll
  *
@@ -72,6 +73,7 @@ export function getPoll(id: number) {
       .catch(reject);
   });
 }
+
 /**
  * Submits poll choices
  *
@@ -90,6 +92,7 @@ export function submitPoll(id: number, choices: number[]) {
       .catch(reject);
   }) 
 }
+
 /**
  * Creates a new poll
  *
