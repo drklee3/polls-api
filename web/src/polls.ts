@@ -90,7 +90,7 @@ export function submitPoll(id: number, choices: number[]) {
         resolve(response.data);
       })
       .catch(reject);
-  }) 
+  });
 }
 
 /**
@@ -108,5 +108,5 @@ export function createPoll(poll: Poll) {
         resolve(response.data);
       })
       .catch(reject);
-  })
+  });
 }
