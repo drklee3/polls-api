@@ -34,6 +34,10 @@ export default class extends React.Component<Props> {
       });
   }
 
+  public handleSubmit(event: any) {
+    event.preventDefault();
+  }
+
   public render() {
     const {poll, status} = this.state;
 
@@ -52,19 +56,20 @@ export default class extends React.Component<Props> {
             {poll.Title}
           </p>
           <p className="content">
-            <ul>    
+            <form onSubmit={this.handleSubmit}>
               {
                 Object.keys(poll.content.choices).map(choiceID => {
                   const choice = poll.content.choices[choiceID];
-                  
+
                   return (
-                    <li key={choiceID}>
+                    <label key={choiceID} className="radio">
+                      <input type="radio" name="choice" />
                       {`${choice.name} - ${choice.count}`}
-                    </li>
+                    </label>
                   );
                 })
               }
-            </ul>
+            </form>
           </p>
         </div>
       </div>
